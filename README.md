@@ -6,13 +6,26 @@ question return two different answers: **12.6 billion** with `SUM`, **5.1 billio
 
 ## Setup
 
-In Cloud Shell, pointed at a project with billing enabled:
+In Cloud Shell:
 
 ```bash
+cd ~
+rm -rf ~/bq-graph-measures-lab
 git clone https://github.com/cuppibla/bq-graph-measures-lab.git
-cd bq-graph-measures-lab
+cd ~/bq-graph-measures-lab
+./setup_project.sh   # skip if you already have a billing-linked project selected
 ./setup.sh
 ```
+
+`setup_project.sh` is for readers who do not have a project yet. It picks a billing account
+(preferring the newest `[YYYY-MM-DD] GDP Credit:` one), creates `bq-graph-XXXX` on it, records the
+ID in `~/project_id.txt`, selects it with `gcloud config set project`, and then waits until the
+brand new project is actually allowed to serve — a project created seconds ago answers
+`403 IAM_PERMISSION_DENIED` while its IAM policy propagates. It is safe to re-run: a second run
+reuses the project in `~/project_id.txt` instead of creating another one.
+
+Already have a project? Skip it and run `gcloud config set project YOUR_PROJECT_ID` instead.
+You need the **BigQuery Admin** role on it.
 
 `setup.sh` enables the BigQuery API, creates the `music` dataset in the US multi-region with five
 tables, and checks the row counts before it says it is done:
@@ -29,6 +42,7 @@ Then open BigQuery Studio and follow the codelab. Every query in it is also here
 
 | file | step |
 |---|---|
+| `setup_project.sh` | a project with billing on it (optional; skip if you have one) |
 | `sql/setup/00_dataset.sql` | the five tables (what `setup.sh` runs) |
 | `sql/01_graph_with_measure.sql` | the property graph, with measures |
 | `sql/02_sum_vs_agg.sql` | SUM and AGG side by side |
